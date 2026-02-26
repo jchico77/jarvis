@@ -208,9 +208,39 @@ def apply_profile(interpreter, profile, profile_path):
         ]
         del profile["computer.languages"]
 
+    # Apply api_keys to environment variables (for LiteLLM and other tools) before applying rest of profile
+    api_keys = profile.pop("api_keys", None)
+    if api_keys and isinstance(api_keys, dict):
+        _apply_api_keys_to_env(api_keys)
+
     apply_profile_to_object(interpreter, profile)
 
     return interpreter
+
+
+# Mapping from profile api_keys keys to environment variable names
+_API_KEYS_TO_ENV = {
+    "openai": "OPENAI_API_KEY",
+    "claude": "ANTHROPIC_API_KEY",
+    "gemini": "GEMINI_API_KEY",
+    "grok": "XAI_API_KEY",
+    "xai_news": "XAI_NEWS_API_KEY",
+    "elevenlabs": "ELEVENLABS_API_KEY",
+    "elevenlabs_voice_id": "ELEVENLABS_VOICE_ID",
+    "make_real": "MAKE_REAL_API_KEY",
+    "jina": "JINA_API_KEY",
+    "serpapi": "SERPAPI_API_KEY",
+}
+
+
+def _apply_api_keys_to_env(api_keys):
+    """Set environment variables from profile api_keys section. Only sets if value is non-empty."""
+    for key, value in api_keys.items():
+        if not value or not isinstance(value, str):
+            continue
+        env_name = _API_KEYS_TO_ENV.get(key)
+        if env_name:
+            os.environ[env_name] = value.strip()
 
 
 def migrate_profile(old_path, new_path):
@@ -519,6 +549,7 @@ You are capable of **any** task.""",
 # computer
     # languages: ["javascript", "shell"]  # Restrict to certain languages
 
+# api_keys:  # Optional. Set keys (openai, claude, gemini, grok, xai_news, elevenlabs, elevenlabs_voice_id, make_real, jina, serpapi) - exported as env vars
 # llm
     # api_key: ...  # Your API key, if the API requires it
     # api_base: ...  # The URL where an OpenAI-compatible server is running

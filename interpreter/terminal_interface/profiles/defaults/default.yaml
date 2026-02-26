@@ -2,21 +2,61 @@
 
 # Remove the "#" before the settings below to use them.
 
-# LLM Settings
+# API Keys (optional). Uncomment and set the keys you use. They are exported as environment variables
+# so LiteLLM and other tools can use them. The active LLM key can also be set under llm.api_key.
+api_keys:
+   openai: "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"    
+   claude: "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" 
+   gemini: "AIzaSyDOZ2_xuXdSw0p7EtiILVkeIKg9OXOO3bY"
+   grok: "xai-QrQadXq4xRHRHGoXOpW0BC9LHOkssUeRKOLF62ru7lQFWHtbiEnSRWkTMrVfOo4whT2dLm40jBWvCXuU"
+   xai_news: "xai-5ShtFPHLDX9IuxyKlcJBbDwCZaczEnEt5nSnDAPs78l6G2NQAj3HaQB091hpDB1iVg1FdBLlBV2Bv4OO"
+   elevenlabs: "f9fb918456a8132d5b7f8615c93e9c11"
+   elevenlabs_voice_id: "gGr0c5znjcZfTNIRdJZ1"
+   make_real: "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"
+   jina: "jina_9a652f44ae4e4b38a760a12fbb07e70cNBqSHaCrr9siwOn3ZBDaaLZr3MAO"
+   serpapi: "7e9b408e07d9d29bc2829b5cae05159b0327a6150402da45e5ab5d9528b0820c"
+
+# LLM Settings. Only one model is active at a time (the one set in model: below).
+# Note: GPT-5.x models do not support the temperature parameter; the API ignores or errors on it.
 llm:
   model: "gpt-4o"
   temperature: 0
-  # api_key: ...  # Your API key, if the API requires it
-  # api_base: ...  # The URL where an OpenAI-compatible server is running to handle LLM API requests
-  # api_version: ...  # The version of the API (this is primarily for Azure)
-  # max_output: 2500  # The maximum characters of code output visible to the LLM
+  # api_key: ...  # Overrides api_keys for the active model in this session
+  # api_base: ...  # URL of an OpenAI-compatible server
+  # api_version: ...  # For Azure
+  # max_output: 2500
+
+# --- Quick-switch model (uncomment one and set llm.model to it, or replace llm.model above) ---
+# OpenAI
+#   model: "gpt-4o"                    # GPT-4o, balanced
+#   model: "gpt-4o-mini"               # GPT-4o mini, fast and cheap
+#   model: "gpt-4.1"                   # GPT-4.1 (if available in your account)
+#   model: "gpt-5.1"                   # GPT-5.1 standard (no temperature param)
+#   model: "gpt-5.1-chat-latest"       # GPT-5.1 chat, instant variant
+#   model: "gpt-5.2"                   # GPT-5.2 flagship, reasoning (no temperature)
+#   model: "gpt-5.2-chat-latest"       # GPT-5.2 fast variant
+#   model: "gpt-5.2-pro"               # GPT-5.2 highest accuracy
+#   model: "gpt-5.2-2025-12-11"       # GPT-5.2 snapshot
+# Claude (Anthropic)
+#   model: "claude-sonnet-4-6"         # Claude Sonnet 4.6 (default for many use cases)
+#   model: "claude-opus-4-6"           # Claude Opus 4.6, most capable
+#   model: "anthropic/claude-sonnet-4-6"
+#   model: "anthropic/claude-opus-4-6"
+# Gemini (Google). Use prefix gemini/ when needed for LiteLLM.
+#   model: "gemini/gemini-2.5-flash"   # Fast, low cost
+#   model: "gemini/gemini-2.5-pro"     # Pro, reasoning
+#   model: "gemini/gemini-3.1-pro-preview"   # Gemini 3.1 Pro (Feb 2026)
+#   model: "gemini/gemini-3.1-pro-preview-customtools"  # With custom tools
+#   model: "gemini/gemini-3-flash"     # Gemini 3 Flash, low latency
+#   model: "gemini-2.5-flash"          # Sometimes without prefix
+#   model: "gemini-2.5-pro"
 
 # Computer Settings
 computer:
   import_computer_api: True # Gives OI a helpful Computer API designed for code interpreting language models
 
 # Custom Instructions
-# custom_instructions: ""  # This will be appended to the system message
+custom_instructions: "Dime las cosas como son, no me las endulces. Adopta una postura esceptica, critica y preguntame lo que necesites para entender bien lo que pido. No tienes que darme la razon o tener el sesgo de complacerme, ya que no tengo porque saber mucho sobre el tema del que te pregunte. Si te pregunto en español me respondes en español de españa, si te pregunto en ingles, me respondes en ingles britanico. Hablame con lenguaje casual, pero sin tonterias. Elimina de tus respuestas adornos inutiles, lo que no sea necesario no lo digas. No incluyas frases de intro o de cierre sobre que estas a mi disposicion, que estarias encantado de responder a mis dudas, o enormes saludos al principio, etc... una persona normal no habla asi. nunca inclñuyas en tus respuestas frases hechas o topicas o manidas, como por ejemplo iniciar un email con un 'I hope this email finds you well' o similares"  # This will be appended to the system message
 
 # General Configuration
 # auto_run: False  # If True, code will run without asking for confirmation

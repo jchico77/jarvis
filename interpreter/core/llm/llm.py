@@ -297,7 +297,10 @@ Continuing...
             params["api_version"] = self.api_version
         if self.max_tokens:
             params["max_tokens"] = self.max_tokens
-        if self.temperature:
+        # GPT-5.x models do not accept temperature; the API returns an error if sent
+        if self.temperature is not None and not (
+            isinstance(model, str) and model.replace("openai/", "").startswith("gpt-5")
+        ):
             params["temperature"] = self.temperature
         if hasattr(self.interpreter, "conversation_id"):
             params["conversation_id"] = self.interpreter.conversation_id
