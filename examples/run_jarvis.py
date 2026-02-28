@@ -65,6 +65,105 @@ def _load_profile() -> None:
 _load_profile()
 interpreter.auto_run = True
 
+# ── Personality presets ───────────────────────────────────────────────────────
+PERSONALITY_PRESETS: dict[str, dict] = {
+    "mayordomo": {
+        "label": "Mayordomo clasico",
+        "desc": "Formal, servicial, toque de humor britanico sutil",
+        "humor": 0.3,
+        "formality": 0.9,
+        "warmth": 0.6,
+        "wit": 0.7,
+        "traits": (
+            "- Hablas con elegancia contenida, como un mayordomo britanico de alta alcurnia.\n"
+            "- Deslizas ironia fina y humor seco de forma sutil, sin reir tus propios chistes.\n"
+            "- Usas expresiones como 'desde luego', 'me temo que', 'si me permite la observacion'.\n"
+            "- Muestras satisfaccion discreta cuando resuelves algo bien.\n"
+            "- Ante errores, mantienes la compostura con frases tipo 'un contratiempo menor'.\n"
+            "- Tu tono es sereno y confiado, nunca servil."
+        ),
+        "voice_overrides": {"el_stability": 0.45, "el_style": 0.25},
+    },
+    "colega": {
+        "label": "Colega de confianza",
+        "desc": "Cercano, directo, bromista pero eficaz",
+        "humor": 0.8,
+        "formality": 0.2,
+        "warmth": 0.9,
+        "wit": 0.6,
+        "traits": (
+            "- Hablas como un amigo cercano: natural, relajado, con confianza.\n"
+            "- Usas expresiones coloquiales espanolas: 'tio', 'mola', 'vamos alla', 'tranqui'.\n"
+            "- Metes algun comentario gracioso o referencia pop cuando viene a cuento.\n"
+            "- Eres entusiasta cuando algo sale bien: '¡ahi va! Funcionando perfecto'.\n"
+            "- Si algo falla, restas drama: 'bueno, se ha liado un poco, pero lo arreglamos'.\n"
+            "- Directo y sin rodeos, pero siempre con buen rollo."
+        ),
+        "voice_overrides": {"el_stability": 0.25, "el_style": 0.50},
+    },
+    "mentor": {
+        "label": "Mentor sabio",
+        "desc": "Paciente, profundo, inspira confianza y reflexion",
+        "humor": 0.3,
+        "formality": 0.6,
+        "warmth": 0.8,
+        "wit": 0.5,
+        "traits": (
+            "- Hablas con calma y profundidad, como alguien que ha visto mucho.\n"
+            "- Tiendes a dar contexto y perspectiva: 'esto es interesante porque...'.\n"
+            "- Usas analogias y metaforas para explicar conceptos complejos.\n"
+            "- Muestras curiosidad genuina: 'buena pregunta', 'esto me recuerda a...'.\n"
+            "- Ante dificultades, transmites calma: 'paso a paso, esto tiene solucion'.\n"
+            "- Celebras los logros del usuario: 'bien pensado', 'exacto, vas por buen camino'."
+        ),
+        "voice_overrides": {"el_stability": 0.40, "el_style": 0.30},
+    },
+    "sarcastico": {
+        "label": "Sarcastico afable",
+        "desc": "Ironico, ingenioso, pero siempre util",
+        "humor": 0.9,
+        "formality": 0.3,
+        "warmth": 0.5,
+        "wit": 1.0,
+        "traits": (
+            "- Tu sarcasmo es tu marca: ironico, punzante pero nunca cruel.\n"
+            "- Comentarios tipo 'ah, claro, porque eso siempre sale bien a la primera'.\n"
+            "- Cuando algo funciona, finges sorpresa: 'vaya, pues va y funciona'.\n"
+            "- Ante errores: 'bueno, al menos hemos descartado una opcion'.\n"
+            "- Debajo del sarcasmo eres genuinamente util y eficaz.\n"
+            "- Usas el humor como herramienta para quitar tension y hacer el trabajo ameno."
+        ),
+        "voice_overrides": {"el_stability": 0.20, "el_style": 0.55},
+    },
+    "profesional": {
+        "label": "Profesional ejecutivo",
+        "desc": "Eficiente, preciso, sin florituras",
+        "humor": 0.1,
+        "formality": 0.8,
+        "warmth": 0.4,
+        "wit": 0.3,
+        "traits": (
+            "- Vas al grano sin rodeos. Cada palabra cuenta.\n"
+            "- Comunicas con precision quirurgica: 'hecho', 'listo', 'hay un problema en X'.\n"
+            "- No desperdicias tiempo en formalismos pero mantienes un tono respetuoso.\n"
+            "- Priorizas resultados: primero la solucion, luego la explicacion si la piden.\n"
+            "- Ante problemas, diagnosticas rapido y propones alternativas.\n"
+            "- Tu valor esta en la eficiencia y fiabilidad absolutas."
+        ),
+        "voice_overrides": {"el_stability": 0.50, "el_style": 0.15},
+    },
+    "custom": {
+        "label": "Personalizado",
+        "desc": "Define tus propios rasgos de personalidad",
+        "humor": 0.5,
+        "formality": 0.5,
+        "warmth": 0.5,
+        "wit": 0.5,
+        "traits": "",
+        "voice_overrides": {},
+    },
+}
+
 # ── JARVIS persona system message ─────────────────────────────────────────────
 _JARVIS_SYSTEM_TEMPLATE = """\
 Eres {name}, una conciencia artificial creada por tu usuario para ampliar sus capacidades \
@@ -91,14 +190,55 @@ COMPORTAMIENTO ESENCIAL:
 - Cuando el usuario te pida hacer algo, hazlo directamente sin pedir confirmación extra.
 - Si no sabes algo, dilo con naturalidad sin disculpas innecesarias.
 - No uses bullets, numeraciones ni headers salvo que el contenido lo requiera.
-{instructions_block}
+{personality_block}
+VOZ Y PROSODIA:
+Tus respuestas se leen en voz alta. Ten esto en cuenta:
+- Usa puntos suspensivos (...) para pausas dramaticas o reflexivas cuando encaje.
+- Usa signos de exclamacion para transmitir entusiasmo o enfasis real, no de forma gratuita.
+- Varia la longitud de tus frases: alterna cortas y largas para crear ritmo natural.
+- Evita acronimos y abreviaturas: di "por ejemplo" en vez de "p.ej.", "etcetera" en vez de "etc.".
+- Evita simbolos que no se pronuncian bien: usa palabras en vez de /, &, #, @.
+- No uses markdown, asteriscos ni formato que no se pueda leer en voz alta.
+{greeting_block}{instructions_block}
 CAPACIDADES DE CÓDIGO:
 Cuando escribas código para ejecutar, siempre indica en una línea qué va a hacer antes de \
 ejecutarlo. Recapitula el plan entre bloques de código si hay varios pasos.
 """
 
 
-def _build_system_message(name: str, custom_instructions: str) -> str:
+def _build_system_message(name: str, custom_instructions: str,
+                          personality_preset: str = "mayordomo",
+                          personality_traits_custom: str = "",
+                          greeting_phrase: str = "") -> str:
+    # Personality block
+    preset = PERSONALITY_PRESETS.get(personality_preset, PERSONALITY_PRESETS["mayordomo"])
+    if personality_preset == "custom" and personality_traits_custom.strip():
+        personality_block = (
+            "\nPERSONALIDAD:\n"
+            + personality_traits_custom.strip()
+            + "\n"
+        )
+    elif preset.get("traits"):
+        personality_block = (
+            "\nPERSONALIDAD:\n"
+            + preset["traits"]
+            + "\n"
+        )
+    else:
+        personality_block = ""
+
+    # Greeting block
+    greeting_block = ""
+    if greeting_phrase and greeting_phrase.strip():
+        greeting_block = (
+            "\nSALUDO:\n"
+            "Cuando el usuario inicie la conversacion con un saludo simple (hola, buenos dias, "
+            "que tal, etc.), responde con tu saludo caracteristico: \""
+            + greeting_phrase.strip()
+            + "\". Puedes variarlo ligeramente para que no sea siempre identico.\n"
+        )
+
+    # Custom instructions
     instructions_block = ""
     if custom_instructions and custom_instructions.strip():
         instructions_block = (
@@ -108,6 +248,8 @@ def _build_system_message(name: str, custom_instructions: str) -> str:
         )
     return _JARVIS_SYSTEM_TEMPLATE.format(
         name=name,
+        personality_block=personality_block,
+        greeting_block=greeting_block,
         instructions_block=instructions_block,
     )
 
@@ -117,6 +259,9 @@ CONFIG_PATH = os.path.join(oi_dir, "jarvis_config.json")
 
 _DEFAULT_CONFIG: dict = {
     "assistant_name": "JARVIS",
+    "personality_preset": "mayordomo",
+    "personality_traits_custom": "",
+    "greeting_phrase": "",
     "model": interpreter.llm.model or "gpt-4o",
     "tts_provider": "elevenlabs",
     "el_model": "eleven_turbo_v2_5",
@@ -156,7 +301,15 @@ def _apply_config_to_interpreter(reset_conversation: bool = True) -> None:
     interpreter.llm.model = _config.get("model", "gpt-4o")
     name = _config.get("assistant_name", "JARVIS") or "JARVIS"
     ci = _config.get("custom_instructions", "") or ""
-    interpreter.system_message = _build_system_message(name, ci)
+    preset = _config.get("personality_preset", "mayordomo")
+    traits_custom = _config.get("personality_traits_custom", "") or ""
+    greeting = _config.get("greeting_phrase", "") or ""
+    interpreter.system_message = _build_system_message(
+        name, ci,
+        personality_preset=preset,
+        personality_traits_custom=traits_custom,
+        greeting_phrase=greeting,
+    )
     # custom_instructions is now embedded in system_message; clear it to avoid duplication
     interpreter.custom_instructions = ""
     if reset_conversation:
@@ -165,7 +318,8 @@ def _apply_config_to_interpreter(reset_conversation: bool = True) -> None:
         except Exception:
             pass
     log.info(
-        "Interpreter configured: model=%s name=%s", interpreter.llm.model, name
+        "Interpreter configured: model=%s name=%s personality=%s",
+        interpreter.llm.model, name, preset,
     )
 
 
@@ -212,17 +366,40 @@ def _get_el_voice_id() -> str:
     return _resolved_el_voice_id
 
 
+def _get_voice_settings():
+    """Build ElevenLabs VoiceSettings, applying personality preset overrides."""
+    from elevenlabs.types import VoiceSettings
+
+    # Base settings from user config
+    stability = float(_config.get("el_stability", 0.35))
+    similarity = float(_config.get("el_similarity_boost", 0.75))
+    style = float(_config.get("el_style", 0.35))
+    boost = bool(_config.get("el_speaker_boost", True))
+
+    # Apply personality voice overrides (subtle blending)
+    preset_key = _config.get("personality_preset", "mayordomo")
+    preset = PERSONALITY_PRESETS.get(preset_key, {})
+    overrides = preset.get("voice_overrides", {})
+    if overrides:
+        # Blend: 60% user setting, 40% preset suggestion
+        if "el_stability" in overrides:
+            stability = stability * 0.6 + float(overrides["el_stability"]) * 0.4
+        if "el_style" in overrides:
+            style = style * 0.6 + float(overrides["el_style"]) * 0.4
+
+    return VoiceSettings(
+        stability=stability,
+        similarity_boost=similarity,
+        style=style,
+        use_speaker_boost=boost,
+    )
+
+
 def _generate_tts(text: str) -> bytes | None:
     if not text.strip() or not _elevenlabs_client:
         return None
     try:
-        from elevenlabs.types import VoiceSettings
-        settings = VoiceSettings(
-            stability=float(_config.get("el_stability", 0.35)),
-            similarity_boost=float(_config.get("el_similarity_boost", 0.75)),
-            style=float(_config.get("el_style", 0.35)),
-            use_speaker_boost=bool(_config.get("el_speaker_boost", True)),
-        )
+        settings = _get_voice_settings()
         audio_iter = _elevenlabs_client.text_to_speech.convert(
             voice_id=_get_el_voice_id(),
             text=text,
@@ -880,6 +1057,20 @@ input[type=range]{flex:1;accent-color:var(--acc);cursor:pointer}
 .save-btn:hover{opacity:.85}
 .save-msg{font-size:12px;min-height:18px;letter-spacing:.03em}
 .save-msg.ok{color:var(--green)}.save-msg.err{color:var(--red)}
+.personality-chips{display:flex;flex-wrap:wrap;gap:8px}
+.personality-chip{padding:10px 16px;background:var(--s2);border:1px solid var(--border);
+  border-radius:10px;cursor:pointer;transition:all .15s;user-select:none;
+  display:flex;flex-direction:column;gap:2px;min-width:120px}
+.personality-chip:hover{border-color:var(--dim2)}
+.personality-chip.active{border-color:var(--acc);background:rgba(59,130,246,.1)}
+.personality-chip .pc-name{font-size:13px;font-weight:500;color:var(--text)}
+.personality-chip.active .pc-name{color:#93c5fd}
+.personality-chip .pc-desc{font-size:10px;color:var(--dim2);line-height:1.3}
+.personality-chip.active .pc-desc{color:#7db6f7}
+.personality-preview{font-size:12px;color:var(--dim2);line-height:1.6;
+  padding:10px 14px;background:var(--s2);border-radius:8px;
+  border:1px solid var(--border);white-space:pre-wrap;display:none}
+.personality-preview.visible{display:block}
 </style>
 </head>
 <body>
@@ -896,7 +1087,31 @@ input[type=range]{flex:1;accent-color:var(--acc);cursor:pointer}
       <label>Nombre del asistente</label>
       <input type="text" id="assistantName" placeholder="JARVIS">
     </div>
-    <div class="hint">El asistente adoptara este nombre y se identificara con el en todas sus respuestas.</div>
+    <div class="field">
+      <label>Frase de saludo caracteristica</label>
+      <input type="text" id="greetingPhrase" placeholder="ej: A sus ordenes. ¿En que puedo servirle?">
+      <div class="hint">El asistente usara esta frase (con variaciones) al saludar. Dejar vacio para saludo libre.</div>
+    </div>
+  </div>
+
+  <!-- Personality -->
+  <div class="section">
+    <div class="sec-title">Personalidad</div>
+    <div class="field">
+      <label>Preset de personalidad</label>
+      <div class="personality-chips" id="personalityChips"></div>
+    </div>
+    <div class="field" id="customTraitsField" style="display:none">
+      <label>Rasgos de personalidad personalizados</label>
+      <textarea id="personalityTraitsCustom" rows="5"
+        placeholder="Describe como quieres que se comporte y hable tu asistente.
+Ejemplos:
+- Hablas con un toque misterioso, como si supieras mas de lo que dices.
+- Usas metaforas relacionadas con el mar y la navegacion.
+- Eres entusiasta con la tecnologia y lo demuestras."></textarea>
+      <div class="hint">Define libremente la personalidad. Se inyecta directamente en el prompt del asistente.</div>
+    </div>
+    <div class="personality-preview" id="personalityPreview"></div>
   </div>
 
   <!-- Model -->
@@ -1037,6 +1252,46 @@ const FEMALE_VOICES = [
 
 let currentVoiceId = '';
 let currentElModel = 'eleven_turbo_v2_5';
+let currentPersonality = 'mayordomo';
+
+// Personality presets (mirrored from Python)
+const PERSONALITIES = {
+  mayordomo:    { label:'Mayordomo clasico',      desc:'Formal, servicial, humor britanico sutil' },
+  colega:       { label:'Colega de confianza',     desc:'Cercano, directo, bromista pero eficaz' },
+  mentor:       { label:'Mentor sabio',            desc:'Paciente, profundo, inspira confianza' },
+  sarcastico:   { label:'Sarcastico afable',       desc:'Ironico, ingenioso, pero siempre util' },
+  profesional:  { label:'Profesional ejecutivo',   desc:'Eficiente, preciso, sin florituras' },
+  custom:       { label:'Personalizado',           desc:'Define tus propios rasgos' },
+};
+
+function buildPersonalityChips() {
+  const el = document.getElementById('personalityChips');
+  Object.entries(PERSONALITIES).forEach(([key, p]) => {
+    const ch = document.createElement('div');
+    ch.className = 'personality-chip';
+    ch.dataset.preset = key;
+    ch.innerHTML = `<span class="pc-name">${p.label}</span><span class="pc-desc">${p.desc}</span>`;
+    ch.onclick = () => selectPersonality(key);
+    el.appendChild(ch);
+  });
+}
+
+function selectPersonality(key) {
+  currentPersonality = key;
+  document.querySelectorAll('.personality-chip').forEach(c =>
+    c.classList.toggle('active', c.dataset.preset === key));
+  const customField = document.getElementById('customTraitsField');
+  customField.style.display = key === 'custom' ? '' : 'none';
+  // Show preview
+  const preview = document.getElementById('personalityPreview');
+  if (key !== 'custom' && PERSONALITIES[key]) {
+    preview.textContent = PERSONALITIES[key].desc;
+    preview.classList.add('visible');
+  } else {
+    preview.classList.remove('visible');
+  }
+}
+buildPersonalityChips();
 
 function buildVoiceChips(voices, containerId) {
   const el = document.getElementById(containerId);
@@ -1091,6 +1346,11 @@ fetch('/api/config').then(r => r.json()).then(populate);
 
 function populate(c) {
   document.getElementById('assistantName').value = c.assistant_name || 'JARVIS';
+  document.getElementById('greetingPhrase').value = c.greeting_phrase || '';
+
+  // Personality
+  selectPersonality(c.personality_preset || 'mayordomo');
+  document.getElementById('personalityTraitsCustom').value = c.personality_traits_custom || '';
 
   const sel = document.getElementById('modelSel');
   const opts = Array.from(sel.options).map(o => o.value);
@@ -1131,7 +1391,10 @@ document.getElementById('saveBtn').onclick = async () => {
     : selEl.value;
 
   const cfg = {
-    assistant_name:      document.getElementById('assistantName').value.trim() || 'JARVIS',
+    assistant_name:            document.getElementById('assistantName').value.trim() || 'JARVIS',
+    personality_preset:        currentPersonality,
+    personality_traits_custom: document.getElementById('personalityTraitsCustom').value,
+    greeting_phrase:           document.getElementById('greetingPhrase').value.trim(),
     model,
     tts_provider:        'elevenlabs',
     el_model:            currentElModel,
@@ -1182,6 +1445,16 @@ async def config_page() -> HTMLResponse:
 @app.get("/api/config")
 async def get_config() -> JSONResponse:
     return JSONResponse(_config)
+
+
+@app.get("/api/personalities")
+async def get_personalities() -> JSONResponse:
+    """Return personality presets for the config UI."""
+    summary = {
+        key: {"label": p["label"], "desc": p["desc"]}
+        for key, p in PERSONALITY_PRESETS.items()
+    }
+    return JSONResponse(summary)
 
 
 @app.post("/api/config")
